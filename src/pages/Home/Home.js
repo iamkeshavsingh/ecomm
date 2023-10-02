@@ -21,8 +21,7 @@ function HomePage() {
     });
     setProducts(newProducts);
   }
-
-  function updateCart(id) {
+  function updateCart(id, type) {
     const isItemPresent = carts.findIndex((data) => data.id === id);
     let updatedCarts;
     if (isItemPresent === -1) {
@@ -35,11 +34,38 @@ function HomePage() {
       ];
     } else {
       const newCarts = JSON.parse(JSON.stringify(carts));
-      newCarts[isItemPresent].quantity = newCarts[isItemPresent].quantity + 1;
+      if (type === 'ADD') {
+        newCarts[isItemPresent].quantity = newCarts[isItemPresent].quantity + 1;
+      } else {
+        const newQuantity = newCarts[isItemPresent].quantity - 1;
+        if (newQuantity === 0) {
+          newCarts.splice(isItemPresent, 1);
+        } else {
+          newCarts[isItemPresent].quantity =
+            newCarts[isItemPresent].quantity - 1;
+        }
+      }
       updatedCarts = newCarts;
     }
     localStorage.setItem('CART', JSON.stringify(updatedCarts));
     setCarts(updatedCarts);
+  }
+
+  function isProductPresentInCart(id) {
+    var isPresentInCart = false;
+
+    var item = carts.find((ele) => ele.id === id);
+    if (item) {
+      isPresentInCart = true;
+      return {
+        isPresentInCart,
+        quantity: item.quantity,
+      };
+    }
+
+    return {
+      isPresentInCart,
+    };
   }
 
   return (
@@ -53,6 +79,7 @@ function HomePage() {
             name={data.name}
             description={data.description}
             updateCart={updateCart}
+            metaData={isProductPresentInCart(data.id)}
           />
         ))}
       </Row>
